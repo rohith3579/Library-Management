@@ -108,7 +108,7 @@ input, select {
 .wrapper
 {
     height:600px;
-    width:10px;
+    width:100%;
    /* background-color: red;*/
 
 }
