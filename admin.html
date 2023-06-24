@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Book Inventory</title>
+  <script src="https://www.gstatic.com/firebasejs/8.6.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.2/firebase-database.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    input[type="submit"],
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button {
+      margin-left: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .logout-link {
+      position: absolute;
+      top: 10px;
+      padding-top: 20px;
+      right: 90px;
+    }
+    
+  </style>
+</head>
+<body>
+  <h1>Book Inventory</h1>
+
+  <form id="bookForm">
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" required><br><br>
+
+    <label for="author">Author:</label>
+    <input type="text" id="author" name="author" required><br><br>
+
+    <label for="genre">Genre:</label>
+    <input type="text" id="genre" name="genre" required><br><br>
+
+    
+
+    <label for="year">Year:</label>
+    <input type="number" id="year" name="year" required><br><br>
+
+    <label for="NumberOfCopies">NumberOfCopies:</label>
+    <input type="number" id="copies" name="NumberOfCopies" required><br><br>
+
+
+    <input type="submit" value="Add Book">
+  </form>
+
+
+
+  <button id="displayBtn">Display Books</button>
+
+  <table id="bookTable">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Genre</th>
+        <th>Year</th>
+        <th>Copies</th>
+        
+
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="logout-link">
+    <a href="index.html">Logout</a>
+  </div>
+
+  <script>
+    // Initialize Firebase
+    var firebaseConfig = {
+        
+  apiKey: "AIzaSyDKPQBjeCDeAnIRJ5rx2EcXnCYX9i6xEzg",
+  authDomain: "auth-form-fae4c.firebaseapp.com",
+  databaseURL: "https://auth-form-fae4c-default-rtdb.firebaseio.com",
+  projectId: "auth-form-fae4c",
+  storageBucket: "auth-form-fae4c.appspot.com",
+  messagingSenderId: "746299539163",
+  appId: "1:746299539163:web:0e3d9508be3ca222a7d6fe",
+  measurementId: "G-RFDRDBKMWV"
+};
+    
+
+    firebase.initializeApp(firebaseConfig);
+
+    var database = firebase.database();
+    var bookForm = document.getElementById('bookForm');
+    var displayBtn = document.getElementById('displayBtn');
+    var bookTable = document.getElementById('bookTable').getElementsByTagName('tbody')[0];
+
+    // Add book to the database
+    bookForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      var title = document.getElementById('title').value;
+      var author = document.getElementById('author').value;
+      var genre = document.getElementById('genre').value;
+      
+      var year = document.getElementById('year').value;
+
+      var copies = document.getElementById('copies').value;
+      
+
+      database.ref('books').push({
+        title: title,
+        author: author,
+        genre: genre,
+        
+        year: year,
+        copies:copies
+      });
+
+      bookForm.reset();
+    });
+
+    // Display all books from the database
+    displayBtn.addEventListener('click', function() {
+      database.ref('books').once('value', function(snapshot) {
+        bookTable.innerHTML = '';
+
+        snapshot.forEach(function(childSnapshot) {
+          var book = childSnapshot.val();
+          var row = bookTable.insertRow();
+
+          var titleCell = row.insertCell();
+          titleCell.textContent = book.title;
+
+          var authorCell = row.insertCell();
+          authorCell.textContent = book.author;
+          
+
+          var genreCell = row.insertCell();
+          genreCell.textContent = book.genre;
+
+          var yearCell = row.insertCell();
+          yearCell.textContent = book.year;
+
+          var copiesCell = row.insertCell();
+          copiesCell.textContent = book.copies;
+
+          
+        });
+      });
+    });
+
+    // delete books
+
+    // Display all books from the database
+displayBtn.addEventListener('click', function() {
+  database.ref('books').once('value', function(snapshot) {
+    bookTable.innerHTML = '';
+
+    snapshot.forEach(function(childSnapshot) {
+      var book = childSnapshot.val();
+      var row = bookTable.insertRow();
+
+      var titleCell = row.insertCell();
+      titleCell.textContent = book.title;
+
+      var authorCell = row.insertCell();
+      authorCell.textContent = book.author;
+
+      var genreCell = row.insertCell();
+      genreCell.textContent = book.genre;
+
+      var yearCell = row.insertCell();
+      yearCell.textContent = book.year;
+
+      var copiesCell = row.insertCell();
+      copCell.textContent = book.copies;
+
+      
+
+      var deleteCell = row.insertCell();
+      var deleteButton = document.createElement('button');
+
+
+      deleteButton.textContent = 'Delete';
+      deleteButton.addEventListener('click', function() {
+        childSnapshot.ref.remove(); // Remove the book from the database
+        row.remove(); // Remove the row from the table
+      });
+      deleteCell.appendChild(deleteButton);
+    });
+  });
+});
+
+   
+  </script>
+  </script>
+</body>
+</html>

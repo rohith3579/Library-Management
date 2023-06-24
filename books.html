@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books</title>
+
+    <!-- Include Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.2/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+    
+    <style>
+        h1 {
+            text-align: center;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .search-form {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 200px;
+            padding: 5px;
+            border: 1px solid black;
+            border-radius: 5px;
+            margin-right: 5px;
+        }
+
+        .search-button {
+            background-color: #6db6b9e6;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        #table-container {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid black;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        th {
+            background-color: #6db6b9e6;
+            color: white;
+        }
+
+        .no-results {
+            text-align: center;
+            color: red;
+            margin-top: 20px;
+        }
+
+        .cart-container {
+            margin-top: 20px;
+        }
+
+        .cart-items {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f2f2f2;
+            border-radius: 5px;
+        }
+
+        .book-details {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        .book-title {
+            font-weight: bold;
+        }
+
+        .book-author {
+            color: #777;
+        }
+
+        .remove-button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Library Books</h1>
+        <div class="logout-link">
+            <a href="index.html">Logout</a>
+        </div>
+
+        <form role="search" id="form" class="search-form">
+            <input type="search" id="query" name="q" placeholder="Search" aria-label="Search through site content" class="search-input">
+            <button class="search-button">Search</button>
+        </form>
+
+        <div class="book-list">
+            <div id="table-container"></div>
+        </div>
+
+        <div class="cart-container">
+            <h2>Cart</h2>
+            <ul id="cart-items-container" class="cart-items"></ul>
+            <button id="finish-button" class="finish-button">Finish</button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        var firebaseConfig = {
+            // Your Firebase configuration here...
+            // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  apiKey: "AIzaSyDKPQBjeCDeAnIRJ5rx2EcXnCYX9i6xEzg",
+  authDomain: "auth-form-fae4c.firebaseapp.com",
+  databaseURL: "https://auth-form-fae4c-default-rtdb.firebaseio.com",
+  projectId: "auth-form-fae4c",
+  storageBucket: "auth-form-fae4c.appspot.com",
+  messagingSenderId: "746299539163",
+  appId: "1:746299539163:web:0e3d9508be3ca222a7d6fe",
+  measurementId: "G-RFDRDBKMWV"
+
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        var database = firebase.database();
+        var tableContainer = document.getElementById('table-container');
+        var searchForm = document.getElementById('form');
+        var cartItemsContainer = document.getElementById('cart-items-container');
+        var cart = [];
+
+        searchForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            var query = document.getElementById('query').value;
+            searchBooks(query);
+        });
+        // search funtion-----------------------
+
+
+        function searchBooks(query) {
+            tableContainer.innerHTML = '';
+
+            // Query the Firebase database for books matching the search query
+            var booksQuery = database.ref('books')
+                .orderByChild('title')
+                .startAt(query)
+                .endAt(query + '\uf8ff')
+                .once('value');
+
+            booksQuery.then(function (snapshot) {
+                var books = snapshot.val();
+
+                if (books) {
+                    var table = document.createElement('table');
+                    var thead = document.createElement('thead');
+                    var tbody = document.createElement('tbody');
+                    var tr = document.createElement('tr');
+                    var thTitle = document.createElement('th');
+                    var thAuthor = document.createElement('th');
+                    var thGenre = document.createElement('th');
+                    var thYear = document.createElement('th');
+                    var thCopies = document.createElement('th');
+
+                    thTitle.textContent = 'Title';
+                    thAuthor.textContent = 'Author';
+                    thGenre.textContent = 'Genre';
+                    thYear.textContent = 'Year';
+                    thCopies.textContent = 'Copies';
+
+                    tr.appendChild(thTitle);
+                    tr.appendChild(thAuthor);
+                    tr.appendChild(thGenre);
+                    tr.appendChild(thYear);
+                    tr.appendChild(thCopies);
+                    thead.appendChild(tr);
+                    table.appendChild(thead);
+
+                    for (var bookId in books) {
+                        var book = books[bookId];
+
+                        // Check if the query matches any of the book properties
+                        if (
+                            book.title.toLowerCase().includes(query.toLowerCase()) ||
+                            book.author.toLowerCase().includes(query.toLowerCase()) ||
+                            book.genre.toLowerCase().includes(query.toLowerCase())
+                        ) {
+                            var tr = document.createElement('tr');
+                            var tdTitle = document.createElement('td');
+                            var tdAuthor = document.createElement('td');
+                            var tdGenre = document.createElement('td');
+                            var tdYear = document.createElement('td');
+                            var tdCopies = document.createElement('td');
+                            var tdCart = document.createElement('td');
+                            var addToCartButton = document.createElement('button');
+
+                            tdTitle.textContent = book.title;
+                            tdAuthor.textContent = book.author;
+                            tdGenre.textContent = book.genre;
+                            tdYear.textContent = book.year;
+                            tdCopies.textContent = book.copies;
+
+                            addToCartButton.textContent = 'Add to Cart';
+                            addToCartButton.addEventListener('click', function () {
+                                addToCart(bookId);
+                            });
+
+                            tdCart.appendChild(addToCartButton);
+                            tr.appendChild(tdTitle);
+                            tr.appendChild(tdAuthor);
+                            tr.appendChild(tdGenre);
+                            tr.appendChild(tdYear);
+                            tr.appendChild(tdCopies);
+                            tr.appendChild(tdCart);
+                            tbody.appendChild(tr);
+                        }
+                    }
+
+                    table.appendChild(tbody);
+                    tableContainer.appendChild(table);
+                } else {
+                    var noResults = document.createElement('p');
+                    noResults.textContent = 'No results found.';
+                    noResults.classList.add('no-results');
+                    tableContainer.appendChild(noResults);
+                }
+            });
+        }
+        // adding to cart-----------------------
+
+
+        function addToCart(bookId) {
+            var bookRef = database.ref('books').child(bookId);
+
+            // Decrease the number of available copies by 1
+            bookRef.child('copies').transaction(function (copies) {
+                if (copies > 0) {
+                    return copies - 1;
+                } else {
+                    return copies;
+                }
+            }, function (error, committed) {
+                if (error) {
+                    console.log('Transaction failed:', error);
+                } else if (!committed) {
+                    console.log('No copies available.');
+                } else {
+                    // Fetch the book details from the database
+                    bookRef.once('value', function (snapshot) {
+                        var book = snapshot.val();
+
+                        // Add the book to the cart array
+                        cart.push(book);
+
+                        // Render the updated cart
+                        renderCart();
+                    });
+                }
+            });
+        }
+        // updating the cartt-------------------
+
+        function removeFromCart(bookId) {
+            // Find the book index in the cart array
+            var index = cart.findIndex(function (book) {
+                return book.id === bookId;
+            });
+
+            if (index !== -1) {
+                // Remove the book from the cart array
+                cart.splice(index, 1);
+
+                // Render the updated cart
+                renderCart();
+            }
+        }
+        // rendering the cart-  - 
+        function renderCart() {
+            // Clear the cart items container
+            cartItemsContainer.innerHTML = '';
+
+            // Render each book in the cart
+            cart.forEach(function (book) {
+                var li = document.createElement('li');
+                var bookDetails = document.createElement('div');
+                var bookTitle = document.createElement('div');
+                var bookAuthor = document.createElement('div');
+                var bookCopies = document.createElement('div');
+                var removeButton = document.createElement('button');
+
+                bookTitle.textContent = book.title;
+                bookAuthor.textContent = 'By ' + book.author;
+                bookCopies.textContent = 'Copies: ' + book.copies;
+
+                removeButton.textContent = 'Remove';
+                removeButton.classList.add('remove-button');
+                removeButton.addEventListener('click', function () {
+                    removeFromCart(book.id);
+                });
+
+                bookDetails.appendChild(bookTitle);
+                bookDetails.appendChild(bookAuthor);
+                bookDetails.appendChild(bookCopies);
+                li.appendChild(bookDetails);
+                li.appendChild(removeButton);
+                cartItemsContainer.appendChild(li);
+            });
+            var finishButton = document.getElementById('finish-button');
+            finishButton.addEventListener('click', function () {
+                showCongratulations();
+            });
+        }
+        function showCongratulations() {
+    cartItemsContainer.innerHTML = '';
+
+    var congratulationsMessage = document.createElement('p');
+    congratulationsMessage.textContent = 'Congratulations! Your order has been placed.';
+    congratulationsMessage.classList.add('congratulations-message', 'animate__animated', 'animate__rocket');
+    cartItemsContainer.appendChild(congratulationsMessage);
+}
+    </script>
+</body>
+</html>
