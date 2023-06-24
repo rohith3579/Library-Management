@@ -107,24 +107,16 @@ input, select {
 /* ------------------------------------Main----------------------- */
 .wrapper
 {
-    height:600px;
-    width:10px;
+    width:100%;
    /* background-color: red;*/
 
 }
 header{
-    height:110px;
-    width:1260px;
+    width:100%;
     background-color: #000;
 }
-section{
-    height:430px;
-    width:1260px;
-    background-color:grey;
-}
 footer{
-    height:60px;
-    width:1270px;
+    width:100%;
     background-color: #000;
 }
 .logo
@@ -148,19 +140,19 @@ nav li
     display: inline;
     line-height: 80px;
 }
-section .section_img
+.section_img
 {
-    height: 430px;
-    margin-top: 0px;
-
+    width: 100%;
     background-image: url("images/registration.avif");
+    height: 100%;
 }
 .box
 {
     height: 300px;
     width: 450px;
     background-color:#030002;
-    margin: 70px auto;
+    margin-top: 12%;
+    margin-left: 36%;
     opacity: 0.6;
     color: white;
 }

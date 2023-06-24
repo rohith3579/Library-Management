@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FeedBack Form</title>
+    <link rel="stylesheet" href="feedback.css" />
+   
+  </head>
+  <body>
+   
+    <div class="form">
+      <!-- Email  -->
+      <div class="name">
+        <label for="name">Name</label>
+        <input
+          type="name"
+          name="name"
+          id="name"
+          placeholder="Write your name"
+        />
+      </div>
+      <div class="email">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          name="email"
+          id="email"
+          placeholder="Write your email"
+        />
+      </div>
+      <div>
+      <textarea cols="45" rows="5" placeholder="Enter your opinion here....."></textarea>
+     
+    </div>
+    <div>
+      <button type="button" onclick="openPopup()">SUBMIT</button>
+    </div>
+      
+  
+  </div>
+  <div class="popup" id="popup">
+    <img src="tick.png">
+    <h2>Thank You!</h2>
+    <p>Your details has been successfully Submitted. Thanks!</p>
+    <button type="button" onclick="closePopup()">Ok</button>
+  </div>
+  <script>
+    let popup=document.getElementById("popup");
+    function openPopup(){
+      popup.classList.add("open-popup");
+    }
+    function closePopup(){
+      popup.classList.remove("open-popup");
+    }
+  </script>
+  </body>
+</html>
